@@ -28,3 +28,48 @@
 ---
 
 ### Streams in shell
+* The power of shell really comes through when you combine different programs. Instead of just running cd, running ls, you might want to chain multiple programs together, you might want to interact with files, and have files operate in between programs, and the way we can do this is using this notion of **streams** that the shell gives us. **Every program by default has two primary streams associated with them: their input stream and output stream**. By default your **input** stream is your keyboard, basically the input stream is your terminal and whatever you type into your terminal is goint to end up into the program, and it has a **default output** stream, which is whenever the program prints something, it' going to print to that stream, and by default that is also your terminal, this is why when I type ```$ echo hello```, it prints back to my terminal. But the shell gives you a way to rewire these streams, to change where the input and output of a programmer pointed. The simplest form of redirection is ```< file``` and ```> file```. The left angle bracket indicates rewire the input for this program to be the contents of this file, and the right angle bracket means rewire the output of the preceding program into this file, so lets look of an example of what that would look like:
+
+    ```
+    missing:~$ echo hello > hello.txt
+    missing:~$ cat hello.txt
+    hello
+    missing:~$ cat < hello.txt
+    hello
+    missing:~$ cat < hello.txt > hello2.txt
+    missing:~$ cat hello2.txt
+    hello
+    ```
+* There is the ```>>``` operator, which appends instead of overwrite. So if I do:
+    ```
+    $ cat < hello.txt >> hello2.txt
+    ```
+* And now you can see if what happened:
+    ```
+    $ cat hello2.txt
+
+    OUTPUT:
+    hello
+    hello
+    ```
+
+* Where this kind of input/output redirection really shines is in the use of pipes. The ```|``` operator lets you “chain” programs such that the output of one is the input of another. Pipe is just a vertical bar, and what **pipe means is take the output of the program to the left and make it the input of the program to the right**.
+* For example, lets say that I want to print out only the last line of the content in root directory, I can achieve this goal using two chained commands with pipe:
+    ```
+    $ ls -l / | tail -n1
+    ```
+* Notice there that ls does not know about tail, and tail does not know about ls, they are different programs and have never been programmed to be compatible with one another, all they know how to do is read from input and write to output, and the **pipe is what wires them together**. In this particular case, I'm saying that I want the output of ls to be the input to tail and then I want the output of tail to just go to my terminal. We can starting building really neat things, like:
+    ```
+    $ curl --head --silent google.com | grep -i content-length | cut --delimiter=' ' -f2
+    ```
+
+---
+
+### The Root User
+* On most Unix-like systems, one user is special: the “root” user. You may have seen it in the file listings above. The root user is above (almost) all access restrictions, and can create, read, update, and delete any file in the system. You will not usually log into your system as the root user though, since it’s too easy to accidentally break something. Instead, you will be using the ```sudo``` (which is **do as superuser**) command. As its name implies, it lets you “do” something “as su” (short for “super user”, or “root”). When you get permission denied errors, it is usually because you need to do something as root. Though make sure you first double-check that you really wanted to do it that way!
+* One thing you need to be root in order to do is writing to the sysfs file system mounted under /sys. sysfs exposes a number of kernel parameters as files, so that you can easily reconfigure the kernel on the fly without specialized tools. **Note that sysfs does not exist on Windows or macOS.**
+* One last handy command to open files with the appropriate program is xgd:
+    ```
+    $ xdg-open lectures.html
+    ```
+* Now, in theory, you should no longer need to open a Finder window ever again. In theory you can accomplish all you want using the tools that we've learned today.
