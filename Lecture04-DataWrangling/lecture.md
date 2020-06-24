@@ -151,3 +151,69 @@ Let’s see if we can do something fancier. Let’s compute the number of single
 ```
  | awk '$1 == 1 && $2 ~ /^c[^ ]*e$/ { print $2 }' | wc -l
 ```
+There’s a lot to unpack here. First, notice that we now have a pattern (the stuff that goes before `{...}`). The pattern says that the first field of the line should be equal to 1 (that’s the count from `uniq -c`), and that the second field should match the given regular expression. And the block just says to print the username. We then count the number of lines in the output with `wc -l`.
+
+However, `awk` is a programming language, remember?
+
+```
+BEGIN { rows = 0 }
+$1 == 1 && $2 ~ /^c[^ ]*e$/ { rows += $1 }
+END { print rows }
+```
+
+`BEGIN` is a pattern that matches the start of the input (and `END` matches the end). Now, the per-line block just adds the count from the first field (although it’ll always be 1 in this case), and then we print it out at the end. In fact, we could get rid of `grep` and `sed` entirely, because `awk` [can do it all](), but we’ll leave that as an exercise to the reader.
+
+## Analyzing data
+
+You can do math! For example, add the numbers on each line together:
+```
+ | paste -sd+ | bc -l
+```
+Or produce more elaborate expressions:
+```
+echo "2*($(data | paste -sd+))" | bc -l
+```
+You can get stats in a variety of ways. [st](https://github.com/nferraz/st) is pretty neat, but if you already have R:
+
+```
+ssh myserver journalctl
+ | grep sshd
+ | grep "Disconnected from"
+ | sed -E 's/.*Disconnected from (invalid |authenticating )?user (.*) [^ ]+ port [0-9]+( \[preauth\])?$/\2/'
+ | sort | uniq -c
+ | awk '{print $1}' | R --slave -e 'x <- scan(file="stdin", quiet=TRUE); summary(x)'
+ ```
+
+ R is another (weird) programming language that’s great at data analysis and plotting. We won’t go into too much detail, but suffice to say that `summary` prints summary statistics about a matrix, and we computed a matrix from the input stream of numbers, so R gives us the statistics we wanted!
+
+If you just want some simple plotting, `gnuplot` is your friend:
+
+```
+ssh myserver journalctl
+ | grep sshd
+ | grep "Disconnected from"
+ | sed -E 's/.*Disconnected from (invalid |authenticating )?user (.*) [^ ]+ port [0-9]+( \[preauth\])?$/\2/'
+ | sort | uniq -c
+ | sort -nk1,1 | tail -n10
+ | gnuplot -p -e 'set boxwidth 0.5; plot "-" using 1:xtic(2) with boxes'
+```
+
+## Data wrangling to make arguments
+
+Sometimes you want to do data wrangling to find things to install or remove based on some longer list. The data wrangling we’ve talked about so far + `xargs` can be a powerful combo:
+
+```
+rustup toolchain list | grep nightly | grep -vE "nightly-x86" | sed 's/-x86.*//' | xargs rustup toolchain uninstall
+```
+
+## Wrangling binary data
+
+So far, we have mostly talked about wrangling textual data, but pipes are just as useful for binary data. For example, we can use ffmpeg to capture an image from our camera, convert it to grayscale, compress it, send it to a remote machine over SSH, decompress it there, make a copy, and then display it.
+
+```
+ffmpeg -loglevel panic -i /dev/video0 -frames 1 -f image2 -
+ | convert - -colorspace gray -
+ | gzip
+ | ssh mymachine 'gzip -d | tee copy.jpg | env DISPLAY=:0 feh -'
+
+```
