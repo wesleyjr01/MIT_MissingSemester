@@ -1,4 +1,5 @@
 # Data Wrangling
+https://missing.csail.mit.edu/2020/data-wrangling/
 
 Have you ever wanted to take data in one format and turn it into a different format? Of course you have! That, in very general terms, is what this lecture is all about. Specifically, massaging data, whether in text or binary format, until you end up with exactly what you wanted.
 
