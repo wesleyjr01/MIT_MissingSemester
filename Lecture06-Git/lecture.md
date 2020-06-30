@@ -193,6 +193,7 @@ To avoid duplicating information, we’re not going to explain the commands belo
 * `git checkout -b <name>`: creates a branch and switches to it
     * same as `git branch <name>`; `git checkout <name>`
 * `git merge <revision>`: merges into current branch
+* `git merge --continue`: after resolving a conflict.
 * `git mergetool`: use a fancy tool to help resolve merge conflicts
 * `git rebase`: rebase set of patches onto a new base
 
