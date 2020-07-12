@@ -1,5 +1,14 @@
-https://missing.csail.mit.edu/2020/metaprogramming/
 ---
+layout: lecture
+title: "Metaprogramming"
+details: build systems, dependency management, testing, CI
+date: 2019-01-27
+ready: true
+video:
+  aspect: 56.25
+  id: _Ms1Z4xfqv4
+---
+
 What do we mean by "metaprogramming"? Well, it was the best collective
 term we could come up with for the set of things that are more about
 _process_ than they are about writing code or working more efficiently.
@@ -272,7 +281,7 @@ you may encounter in the wild:
    system to check that different feature or components work _together_.
  - Regression test: a test that implements a particular pattern that
    _previously_ caused a bug to ensure that the bug does not resurface.
- - Mocking: the replace a function, module, or type with a fake
+ - Mocking: to replace a function, module, or type with a fake
    implementation to avoid testing unrelated functionality. For example,
    you might "mock the network" or "mock the disk".
 
@@ -303,7 +312,7 @@ you may encounter in the wild:
     command fails. This should prevent any commit from having an
     unbuildable version of the paper.
  4. Set up a simple auto-published page using [GitHub
-    Pages](https://help.github.com/en/actions/automating-your-workflow-with-github-actions).
+    Pages](https://pages.github.com/).
     Add a [GitHub Action](https://github.com/features/actions) to the
     repository to run `shellcheck` on any shell files in that
     repository (here is [one way to do

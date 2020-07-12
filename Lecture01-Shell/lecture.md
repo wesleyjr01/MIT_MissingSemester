@@ -1,75 +1,393 @@
-# Bash (Born in Shell)
-### https://missing.csail.mit.edu/2020/course-shell/
-* Most popullar shell there is.
-* Use the shell to write commands, and commands can be relatively straightforward things, usually it'll be something like executing programs with arguments. One program we can execute is date:   
-```$ date```
-* You can also execute a program with arguments, this is one way to modify the behavior of the program, so for example there is a program called ```echo```, and echo just prints out the arguments that you give it, and arguments are just white spaces separated things that follow the program name. So we can say ```$ echo hello```, and it will print hello back. You can also quote things up, so you can use more words on arguments ```$ echo "Hello world"```.
-* One thing you might ask is how does the shell know what these programs are? When I type ```$ date``` or when I type ```$ echo```, how does it know what these programs are supposed to do? And the answer to this is your computer has a bunch of built-in programs that comes with the machine, it chips with a bunch of terminal centric applications, **and these applications are stored on your file system, and your shell has a way to determine where a program is located. Basically it has a way to search for programs, and it does this though something called an *environment variable***. An **environment variable** is a variable like you might be used to for programming languages, it turns out that **the shell and the bash in particular is really a programming language**, the prompt that you're given is not just able to run a program with arguments, you can also do things like *while loops, for looops, conditionals*, you can define functions, define variables, and all of these things you can do in the shell. We will cover a lot of that on the next lecture on shell scripting.
-* For now, lets look at this particular environment variable. Environment variables are things that are set whenever you start you shell, they're not things you have to set every time you run you shell, there are a bunch of these that set things like **where is your home directory**, **what is your username**, and there's also one tha's critical for this particular purpose, **which is the path variable**, so if I echo out ```$ echo $PATH```, **this is going to show me all of the paths on my machine that shell will search for programs**, for example:
-    ```
-    /home/w/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
-    ```
-*  This is a list, that is colon separated, and in bash, whenever you type the name of a program, it is going to search through this list of paths on your machine and it's going to look in each directory for a program or a file whose name matches the command your tried to run. So, in this case, when we try to run ```$ date ``` or ```$ echo```, it's goona walk through these one at a time until it finds one that contains the program called date or echo and then it's gonna run it. If we want to know which one is actually run, there's a called ```which```, which lets us do that: ```which mongo``` and it returns ```/usr/bin/mongo```.
-* Lets talk about what **paths** are. **Paths are a way to name the location of a file on your computer**. **Absolute Paths are paths that fully determine the location of a file**. There are also things know as relative paths. **Relative paths are relative to where you currently are**.
-* To find out where you are, press ```$ pwd```, which stands for **print working directory**. To change directory, use ```$ cd```.
-* There are also a couple of special directories, there is dot **.**, and dotdot **..**, dot means the current directory, and dotdot means the parent directory.
-* If you want to write a program that runs a program like echo or date, and you want it to be able to run from anywhere, you eighter want to just give the name of the program, like date or echo and let the shell use the path to figure out where it is, **or you want to give its absolute path**, cause if you give a relative path, then if I ran it in my home directory, and you run it in some other directory, it might work for me and not for you.* We can give cd a really handy argument, which is dash: ```$ cd -```, this cd to the directory you were previously in.
-* Unless a directory is given as its first argument, ```ls``` will print the contents of the current directory. Most commands accept flags and options (flags with values) that start with ```-``` to modify their behavior. Usually, running a program with the ```-h``` or ```--help``` flag (```/?``` on Windows) will print some help text that tells you what flags and options are available. For example, ```ls --help``` tells us a bunch of information about the flags that can be used. There is a special one, that is ```$ ls -l```, which means **use a long listing format**, this gives us a bunch more informatio about each file or directory present:   
-    ```
-    missing:~$ ls -l /home
-    drwxr-xr-x 1 ownr  grp  4096 Jun 15  2019 _dir
-    ```
-* First, the ```d``` at the beggining of the line tells us that ```_dir``` is a directory. The following letters after indicate the permissions that are set to that file/directory. Like we saw earlier, I might not be able to open a given file, or I might no be able to cd into a given directory and this is all dictated by the permissions on that particular file or directory. **They way we read these is that the first group of three are the permissions set for the owner ```ownr``` of the file/directory ```_dir_```. The second group of three characters sets the permissions for the group ```grp``` that owns this file/directory, and the final group of three is the permissions for everyone else, so anyone that is not a user owner or a group owner, and if there is a dash it means you do not have that permission.** 
-* Another handy command is move ```$ mv```.
-* Another handy command is copy ```$ cp```.
-* Another handy command is remove ```$ rm```. By default in Linux, remove is not a recursive directory, so if you want to remove a folder and all files in it, you have to use ```$ rm -r folder```.
-* If you ever want more information about a program’s arguments, inputs, outputs, or how it works in general, give the ```man``` program a try. It takes as an argument the name of a program, and shows you its manual page. Press ```q``` to exit: ```missing:~$ man ls```
-
+---
+layout: lecture
+title: "Course overview + the shell"
+date: 2019-01-13
+ready: true
+video:
+  aspect: 56.25
+  id: Z56Jmr9Z34Q
 ---
 
-### Streams in shell
-* The power of shell really comes through when you combine different programs. Instead of just running cd, running ls, you might want to chain multiple programs together, you might want to interact with files, and have files operate in between programs, and the way we can do this is using this notion of **streams** that the shell gives us. **Every program by default has two primary streams associated with them: their input stream and output stream**. By default your **input** stream is your keyboard, basically the input stream is your terminal and whatever you type into your terminal is goint to end up into the program, and it has a **default output** stream, which is whenever the program prints something, it' going to print to that stream, and by default that is also your terminal, this is why when I type ```$ echo hello```, it prints back to my terminal. But the shell gives you a way to rewire these streams, to change where the input and output of a programmer pointed. The simplest form of redirection is ```< file``` and ```> file```. The left angle bracket indicates rewire the input for this program to be the contents of this file, and the right angle bracket means rewire the output of the preceding program into this file, so lets look of an example of what that would look like:
+# Motivation
 
-    ```
-    missing:~$ echo hello > hello.txt
-    missing:~$ cat hello.txt
-    hello
-    missing:~$ cat < hello.txt
-    hello
-    missing:~$ cat < hello.txt > hello2.txt
-    missing:~$ cat hello2.txt
-    hello
-    ```
-* There is the ```>>``` operator, which appends instead of overwrite. So if I do:
-    ```
-    $ cat < hello.txt >> hello2.txt
-    ```
-* And now you can see if what happened:
-    ```
-    $ cat hello2.txt
+As computer scientists, we know that computers are great at aiding in
+repetitive tasks. However, far too often, we forget that this applies
+just as much to our _use_ of the computer as it does to the computations
+we want our programs to perform. We have a vast range of tools
+available at our fingertips that enable us to be more productive and
+solve more complex problems when working on any computer-related
+problem. Yet many of us utilize only a small fraction of those tools; we
+only know enough magical incantations by rote to get by, and blindly
+copy-paste commands from the internet when we get stuck.
 
-    OUTPUT:
-    hello
-    hello
-    ```
+This class is an attempt to address this.
 
-* Where this kind of input/output redirection really shines is in the use of pipes. The ```|``` operator lets you “chain” programs such that the output of one is the input of another. Pipe is just a vertical bar, and what **pipe means is take the output of the program to the left and make it the input of the program to the right**.
-* For example, lets say that I want to print out only the last line of the content in root directory, I can achieve this goal using two chained commands with pipe:
-    ```
-    $ ls -l / | tail -n1
-    ```
-* Notice there that ls does not know about tail, and tail does not know about ls, they are different programs and have never been programmed to be compatible with one another, all they know how to do is read from input and write to output, and the **pipe is what wires them together**. In this particular case, I'm saying that I want the output of ls to be the input to tail and then I want the output of tail to just go to my terminal. We can starting building really neat things, like:
-    ```
-    $ curl --head --silent google.com | grep -i content-length | cut --delimiter=' ' -f2
-    ```
+We want to teach you how to make the most of the tools you know, show
+you new tools to add to your toolbox, and hopefully instill in you some
+excitement for exploring (and perhaps building) more tools on your own.
+This is what we believe to be the missing semester from most Computer
+Science curricula.
 
----
+# Class structure
 
-### The Root User
-* On most Unix-like systems, one user is special: the “root” user. You may have seen it in the file listings above. The root user is above (almost) all access restrictions, and can create, read, update, and delete any file in the system. You will not usually log into your system as the root user though, since it’s too easy to accidentally break something. Instead, you will be using the ```sudo``` (which is **do as superuser**) command. As its name implies, it lets you “do” something “as su” (short for “super user”, or “root”). When you get permission denied errors, it is usually because you need to do something as root. Though make sure you first double-check that you really wanted to do it that way!
-* One thing you need to be root in order to do is writing to the sysfs file system mounted under /sys. sysfs exposes a number of kernel parameters as files, so that you can easily reconfigure the kernel on the fly without specialized tools. **Note that sysfs does not exist on Windows or macOS.**
-* One last handy command to open files with the appropriate program is xgd:
+The class consists of 11 1-hour lectures, each one centering on a
+[particular topic](/2020/). The lectures are largely independent,
+though as the semester goes on we will presume that you are familiar
+with the content from the earlier lectures. We have lecture notes
+online, but there will be a lot of content covered in class (e.g. in the
+form of demos) that may not be in the notes. We will be recording
+lectures and posting the recordings online.
+
+We are trying to cover a lot of ground over the course of just 11 1-hour
+lectures, so the lectures are fairly dense. To allow you some time to
+get familiar with the content at your own pace, each lecture includes a
+set of exercises that guide you through the lecture's key points. After
+each lecture, we are hosting office hours where we will be present to
+help answer any questions you might have. If you are attending the class
+online, you can send us questions at
+[missing-semester@mit.edu](mailto:missing-semester@mit.edu).
+
+Due to the limited time we have, we won't be able to cover all the tools
+in the same level of detail a full-scale class might. Where possible, we
+will try to point you towards resources for digging further into a tool
+or topic, but if something particularly strikes your fancy, don't
+hesitate to reach out to us and ask for pointers!
+
+# Topic 1: The Shell
+
+## What is the shell?
+
+Computers these days have a variety of interfaces for giving them
+commands; fancyful graphical user interfaces, voice interfaces, and
+even AR/VR are everywhere. These are great for 80% of use-cases, but
+they are often fundamentally restricted in what they allow you to do —
+you cannot press a button that isn't there or give a voice command that
+hasn't been programmed. To take full advantage of the tools your
+computer provides, we have to go old-school and drop down to a textual
+interface: The Shell.
+
+Nearly all platforms you can get your hand on has a shell in one form or
+another, and many of them have several shells for you to choose from.
+While they may vary in the details, at their core they are all roughly
+the same: they allow you to run programs, give them input, and inspect
+their output in a semi-structured way.
+
+In this lecture, we will focus on the Bourne Again SHell, or "bash" for
+short. This is one of the most widely used shells, and its syntax is
+similar to what you will see in many other shells. To open a shell
+_prompt_ (where you can type commands), you first need a _terminal_.
+Your device probably shipped with one installed, or you can install one
+fairly easily.
+
+## Using the shell
+
+When you launch your terminal, you will see a _prompt_ that often looks
+a little like this:
+
+```console
+missing:~$ 
+```
+
+This is the main textual interface to the shell. It tells you that you
+are on the machine `missing` and that your "current working directory",
+or where you currently are, is `~` (short for "home"). The `$` tells you
+that you are not the root user (more on that later). At this prompt you
+can type a _command_, which will then be interpreted by the shell. The
+most basic command is to execute a program:
+
+```console
+missing:~$ date
+Fri 10 Jan 2020 11:49:31 AM EST
+missing:~$ 
+```
+
+Here, we executed the `date` program, which (perhaps unsurprisingly)
+prints the current date and time. The shell then asks us for another
+command to execute. We can also execute a command with _arguments_:
+
+```console
+missing:~$ echo hello
+hello
+```
+
+In this case, we told the shell to execute the program `echo` with the
+argument `hello`. The `echo` program simply prints out its arguments.
+The shell parses the command by splitting it by whitespace, and then
+runs the program indicated by the first word, supplying each subsequent
+word as an argument that the program can access. If you want to provide
+an argument that contains spaces or other special characters (e.g., a
+directory named "My Photos"), you can either quote the argument with `'`
+or `"` (`"My Photos"`), or escape just the relevant characters with `\`
+(`My\ Photos`).
+
+But how does the shell know how to find the `date` or `echo` programs?
+Well, the shell is a programming environment, just like Python or Ruby,
+and so it has variables, conditionals, loops, and functions (next
+lecture!). When you run commands in your shell, you are really writing a
+small bit of code that your shell interprets. If the shell is asked to
+execute a command that doesn't match one of its programming keywords, it
+consults an _environment variable_ called `$PATH` that lists which
+directories the shell should search for programs when it is given a
+command:
+
+
+```console
+missing:~$ echo $PATH
+/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+missing:~$ which echo
+/bin/echo
+missing:~$ /bin/echo $PATH
+/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+```
+
+When we run the `echo` command, the shell sees that it should execute
+the program `echo`, and then searches through the `:`-separated list of
+directories in `$PATH` for a file by that name. When it finds it, it
+runs it (assuming the file is _executable_; more on that later). We can
+find out which file is executed for a given program name using the
+`which` program. We can also bypass `$PATH` entirely by giving the
+_path_ to the file we want to execute.
+
+## Navigating in the shell
+
+A path on the shell is a delimited list of directories; separated by `/`
+on Linux and macOS and `\` on Windows. On Linux and macOS, the path `/`
+is the "root" of the file system, under which all directories and files
+lie, whereas on Windows there is one root for each disk partition (e.g.,
+`C:\`). We will generally assume that you are using a Linux filesystem
+in this class. A path that starts with `/` is called an _absolute_ path.
+Any other path is a _relative_ path. Relative paths are relative to the
+current working directory, which we can see with the `pwd` command and
+change with the `cd` command. In a path, `.` refers to the current
+directory, and `..` to its parent directory:
+
+```console
+missing:~$ pwd
+/home/missing
+missing:~$ cd /home
+missing:/home$ pwd
+/home
+missing:/home$ cd ..
+missing:/$ pwd
+/
+missing:/$ cd ./home
+missing:/home$ pwd
+/home
+missing:/home$ cd missing
+missing:~$ pwd
+/home/missing
+missing:~$ ../../bin/echo hello
+hello
+```
+
+Notice that our shell prompt kept us informed about what our current
+working directory was. You can configure your prompt to show you all
+sorts of useful information, which we will cover in a later lecture.
+
+In general, when we run a program, it will operate in the current
+directory unless we tell it otherwise. For example, it will usually
+search for files there, and create new files there if it needs to.
+
+To see what lives in a given directory, we use the `ls` command:
+
+```console
+missing:~$ ls
+missing:~$ cd ..
+missing:/home$ ls
+missing
+missing:/home$ cd ..
+missing:/$ ls
+bin
+boot
+dev
+etc
+home
+...
+```
+
+Unless a directory is given as its first argument, `ls` will print the
+contents of the current directory. Most commands accept flags and
+options (flags with values) that start with `-` to modify their
+behavior. Usually, running a program with the `-h` or `--help` flag
+(`/?` on Windows) will print some help text that tells you what flags
+and options are available. For example, `ls --help` tells us:
+
+```
+  -l                         use a long listing format
+```
+
+```console
+missing:~$ ls -l /home
+drwxr-xr-x 1 missing  users  4096 Jun 15  2019 missing
+```
+
+This gives us a bunch more information about each file or directory
+present. First, the `d` at the beginning of the line tells us that
+`missing` is a directory. Then follow three groups of three characters
+(`rwx`). These indicate what permissions the owner of the file
+(`missing`), the owning group (`users`), and everyone else respectively
+have on the relevant item. A `-` indicates that the given principal does
+not have the given permission. Above, only the owner is allowed to
+modify (`w`) the `missing` directory (i.e., add/remove files in it). To
+enter a directory, a user must have "search" (represented by "execute":
+`x`) permissions on that directory (and its parents). To list its
+contents, a user must have read (`r`) permissions on that directory. For
+files, the permissions are as you would expect. Notice that nearly all
+the files in `/bin` have the `x` permission set for the last group,
+"everyone else", so that anyone can execute those programs.
+
+Some other handy programs to know about at this point are `mv` (to
+rename/move a file), `cp` (to copy a file), and `mkdir` (to make a new
+directory).
+
+If you ever want _more_ information about a program's arguments, inputs,
+outputs, or how it works in general, give the `man` program a try. It
+takes as an argument the name of a program, and shows you its _manual
+page_. Press `q` to exit.
+
+```console
+missing:~$ man ls
+```
+
+## Connecting programs
+
+In the shell, programs have two primary "streams" associated with them:
+their input stream and their output stream. When the program tries to
+read input, it reads from the input stream, and when it prints
+something, it prints to its output stream. Normally, a program's input
+and output are both your terminal. That is, your keyboard as input and
+your screen as output. However, we can also rewire those streams!
+
+The simplest form of redirection is `< file` and `> file`. These let you
+rewire the input and output streams of a program to a file respectively:
+
+```console
+missing:~$ echo hello > hello.txt
+missing:~$ cat hello.txt
+hello
+missing:~$ cat < hello.txt
+hello
+missing:~$ cat < hello.txt > hello2.txt
+missing:~$ cat hello2.txt
+hello
+```
+
+You can also use `>>` to append to a file. Where this kind of
+input/output redirection really shines is in the use of _pipes_. The `|`
+operator lets you "chain" programs such that the output of one is the
+input of another:
+
+```console
+missing:~$ ls -l / | tail -n1
+drwxr-xr-x 1 root  root  4096 Jun 20  2019 var
+missing:~$ curl --head --silent google.com | grep --ignore-case content-length | cut --delimiter=' ' -f2
+219
+```
+
+We will go into a lot more detail about how to take advantage of pipes
+in the lecture on data wrangling.
+
+## A versatile and powerful tool
+
+On most Unix-like systems, one user is special: the "root" user. You may
+have seen it in the file listings above. The root user is above (almost)
+all access restrictions, and can create, read, update, and delete any
+file in the system. You will not usually log into your system as the
+root user though, since it's too easy to accidentally break something.
+Instead, you will be using the `sudo` command. As its name implies, it
+lets you "do" something "as su" (short for "super user", or "root").
+When you get permission denied errors, it is usually because you need to
+do something as root. Though make sure you first double-check that you
+really wanted to do it that way!
+
+One thing you need to be root in order to do is writing to the `sysfs` file
+system mounted under `/sys`. `sysfs` exposes a number of kernel parameters as
+files, so that you can easily reconfigure the kernel on the fly without
+specialized tools. **Note that sysfs does not exist on Windows or macOS.**
+
+For example, the brightness of your laptop's screen is exposed through a file
+called `brightness` under
+
+```
+/sys/class/backlight
+```
+
+By writing a value into that file, we can change the screen brightness.
+Your first instinct might be to do something like:
+
+```console
+$ sudo find -L /sys/class/backlight -maxdepth 2 -name '*brightness*'
+/sys/class/backlight/thinkpad_screen/brightness
+$ cd /sys/class/backlight/thinkpad_screen
+$ sudo echo 3 > brightness
+An error occurred while redirecting file 'brightness'
+open: Permission denied
+```
+
+This error may come as a surprise. After all, we ran the command with
+`sudo`! This is an important thing to know about the shell. Operations
+like `|`, `>`, and `<` are done _by the shell_, not by the individual
+program. `echo` and friends do not "know" about `|`. They just read from
+their input and write to their output, whatever it may be. In the case
+above, the _shell_ (which is authenticated just as your user) tries to
+open the brightness file for writing, before setting that as `sudo
+echo`'s output, but is prevented from doing so since the shell does not
+run as root. Using this knowledge, we can work around this:
+
+```console
+$ echo 3 | sudo tee brightness
+```
+
+Since the `tee` program is the one to open the `/sys` file for writing,
+and _it_ is running as `root`, the permissions all work out. You can
+control all sorts of fun and useful things through `/sys`, such as the
+state of various system LEDs (your path might be different):
+
+```console
+$ echo 1 | sudo tee /sys/class/leds/input6::scrolllock/brightness
+```
+
+# Next steps
+
+At this point you know your way around a shell enough to accomplish
+basic tasks. You should be able to navigate around to find files of
+interest and use the basic functionality of most programs. In the next
+lecture, we will talk about how to perform and automate more complex
+tasks using the shell and the many handy command-line programs out
+there.
+
+# Exercises
+
+ 1. Create a new directory called `missing` under `/tmp`.
+ 1. Look up the `touch` program. The `man` program is your friend.
+ 1. Use `touch` to create a new file called `semester` in `missing`.
+ 1. Write the following into that file, one line at a time:
     ```
-    $ xdg-open lectures.html
+    #!/bin/sh
+    curl --head --silent https://missing.csail.mit.edu
     ```
-* Now, in theory, you should no longer need to open a Finder window ever again. In theory you can accomplish all you want using the tools that we've learned today.
+    The first line might be tricky to get working. It's helpful to know that
+    `#` starts a comment in Bash, and `!` has a special meaning even within
+    double-quoted (`"`) strings. Bash treats single-quoted strings (`'`)
+    differently: they will do the trick in this case. See the Bash
+    [quoting](https://www.gnu.org/software/bash/manual/html_node/Quoting.html)
+    manual page for more information.
+ 1. Try to execute the file, i.e. type the path to the script (`./semester`)
+    into your shell and press enter. Understand why it doesn't work by
+    consulting the output of `ls` (hint: look at the permission bits of the
+    file).
+ 1. Run the command by explicitly starting the `sh` interpreter, and giving it
+    the file `semester` as the first argument, i.e. `sh semester`. Why does
+    this work, while `./semester` didn't?
+ 1. Look up the `chmod` program (e.g. use `man chmod`).
+ 1. Use `chmod` to make it possible to run the command `./semester` rather than
+    having to type `sh semester`. How does your shell know that the file is
+    supposed to be interpreted using `sh`? See this page on the
+    [shebang](https://en.wikipedia.org/wiki/Shebang_(Unix)) line for more
+    information.
+ 1. Use `|` and `>` to write the "last modified" date output by
+    `semester` into a file called `last-modified.txt` in your home
+    directory.
+ 1. Write a command that reads out your laptop battery's power level or your
+    desktop machine's CPU temperature from `/sys`. Note: if you're a macOS
+    user, your OS doesn't have sysfs, so you can skip this exercise.

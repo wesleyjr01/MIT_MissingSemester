@@ -1,4 +1,12 @@
-https://missing.csail.mit.edu/2020/security/
+---
+layout: lecture
+title: "Security and Cryptography"
+date: 2019-01-28
+ready: true
+video:
+  aspect: 56.25
+  id: tjwobAmnKTo
+---
 
 Last year's [security and privacy lecture](/2019/security/) focused on how you
 can be more secure as a computer _user_. This year, we will focus on security
